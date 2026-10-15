@@ -10,25 +10,24 @@ void write_config(write_buffer *wb) {
   write_str(wb, "[config]");
   newline(wb);
 
-  write_str(wb, "currency = ");
+  write_str(wb, "currency = \"");
   buf_write(wb, currency, 3);
-  newline(wb);
+  write_str(wb, "\"\n");
 
-  write_str(wb, "user = ");
+  write_str(wb, "user = \"");
   write_str(wb, user);
-  newline(wb);
+  write_str(wb, "\"\n");
 
-  write_str(wb, "name = ");
+  write_str(wb, "name = \"");
   write_str(wb, name);
-  newline(wb);
+  write_str(wb, "\"\n\n");
 }
 
 #define _MAX_ACCOUNTS 8
-#define _MAX_EXPENSES 16
+#define _MAX_EXPENSES 32
 #define _ROW_PAGE_SIZE 16
 #define _PAGE_PER_EXPENSE 16
-#define _STUPIDLY_LARGE_BUFFER                                                 \
-  (_MAX_EXPENSES * _PAGE_PER_EXPENSE * _ROW_PAGE_SIZE)
+#define _STUPIDLY_LARGE_BUFFER (_MAX_EXPENSES * _PAGE_PER_EXPENSE)
 
 typedef struct {
   char _str[64];
@@ -47,7 +46,7 @@ typedef struct {
 
 typedef row_page *row_page_prt;
 
-static const row_page global_row_arr[_STUPIDLY_LARGE_BUFFER] = {};
+static const row_page global_row_page_arr[_STUPIDLY_LARGE_BUFFER] = {};
 
 typedef struct {
   name_str name;
@@ -57,14 +56,19 @@ typedef struct {
 
 void write_expense(write_buffer *wb, name_str acc_name, expense *exp) {
   write_str(wb, "[expense]\n");
-
+  write_str(wb, "name = \"");
+  write_str(wb, exp->name._str);
+  write_str(wb, "\"\n");
 }
 
 typedef struct {
-  expense *expenses[_MAX_EXPENSES];
+  expense *expenses[_MAX_EXPENSES / 4];
 } expense_arr;
 
-static const expense global_expense_arr[_MAX_EXPENSES] = {};
+static const struct {
+  int len;
+  expense expenses[_MAX_EXPENSES];
+} global_expense_arr = {};
 
 typedef struct {
   name_str name;
@@ -72,7 +76,10 @@ typedef struct {
 } account;
 
 void write_account(write_buffer *wb, account *acc) {
-  write_str(wb, "[account]");
+  write_str(wb, "[account]\n");
+  write_str(wb, "name = \"");
+  write_str(wb, acc->name._str);
+  write_str(wb, "\"\n\n");
 }
 
 void save(account accounts[], int n) {
@@ -90,20 +97,25 @@ void save(account accounts[], int n) {
   fclose(f);
 }
 
-void setup_example(account accounts[5]) {
-  char *name_checkings = "checkings";
-  memcpy(&(&accounts[0])->name, name_checkings, strlen(name_checkings));
+#define EXAMPLE_ACC_COUNT 2
+void setup_example(account accounts[EXAMPLE_ACC_COUNT]) {
+  char *names[EXAMPLE_ACC_COUNT] = {
+      "checkings",
+      "savings",
+  };
+
+  for (int i = 0; i < EXAMPLE_ACC_COUNT; i++) {
+    memcpy(&(&accounts[i])->name, names[i], strlen(names[i]));
+  }
 }
 
 int main(void) {
   printf("hello world\n");
   int acc_count = 0;
-  account accounts[5] = {};
-  setup_example(accounts);
+  account accounts[EXAMPLE_ACC_COUNT] = {};
 
-  printf("first account name: %s\n", accounts[0].name._str);
-  printf("second account name: %s\n", accounts[1].name._str);
-  printf("account size: %zu\n", sizeof(expense_arr));
+  setup_example(accounts);
+  save(accounts, EXAMPLE_ACC_COUNT);
 
   return 0;
 }

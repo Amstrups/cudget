@@ -1,3 +1,11 @@
 [config]
-currency = dkk
-name = chris
+currency = "dkk"
+user = "chris"
+name = "test budget"
+
+[account]
+name = "checkings"
+
+[account]
+name = "savings"
+
