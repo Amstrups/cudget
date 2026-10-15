@@ -1,0 +1,31 @@
+[budget]
+accounts = [
+	"checking",
+	"budget_personal",
+	"budget_shared", 
+	"invesment",
+	"household"
+]
+
+[expense]
+name = "insurance"
+account = "budget_personal"
+
+[expense]
+name = "unemployment_insurance"
+account = "budget_personal"
+
+[expense]
+name = "budgettet_food"
+account = "household"
+
+# rows
+[expense."insurance"]
+{DATE_TIME},{AMOUNT}
+{DATE_TIME},{AMOUNT}
+{DATE_TIME},{AMOUNT}
+{DATE_TIME},{AMOUNT}
+{DATE_TIME},{AMOUNT}
+{DATE_TIME},{AMOUNT}
+
+
